@@ -23,40 +23,18 @@ source ./scripts/patch-utils.sh
 sudo apt-get install linux-headers-generic build-essential git
 
 #Additional packages to build patch
-require_package libusb-1.0-0-dev
+kernel_name="kernel-4.4"
 require_package libssl-dev
 
-LINUX_BRANCH=$(uname -r)
-
+[ ! -d ${kernel_name} ] && \
+git clone https://github.com/jetsonhacks/buildJetsonTX2Kernel.git && \
+cd buildJetsonTX2Kernel && \
+./getKernelSources.sh && \
+./scripts/fixMakeFiles.sh && \
+cd .. && cp /usr/src/kernel/${kernel_name} ./${kernel_name}
 kernel_branch=$(choose_kernel_branch $LINUX_BRANCH)
 kernel_name="ubuntu-xenial-$kernel_branch"
 
-# Get the linux kernel and change into source tree
-[ ! -d ${kernel_name} ] && git clone -b $kernel_branch git://kernel.ubuntu.com/ubuntu/ubuntu-xenial.git --depth 1 ./${kernel_name}
-cd ${kernel_name}
-
-# Verify that there are no trailing changes., warn the user to make corrective action if needed
-if [ $(git status | grep 'modified:' | wc -l) -ne 0 ];
-then
-	echo -e "\e[36mThe kernel has modified files:\e[0m"
-	git status | grep 'modified:'
-	echo -e "\e[36mProceeding will reset all local kernel changes. Press 'n' within 10 seconds to abort the operation"
-	set +e
-	read -n 1 -t 10 -r -p "Do you want to proceed? [Y/n]" response
-	set -e
-	response=${response,,}    # tolower
-	if [[ $response =~ ^(n|N)$ ]]; 
-	then
-		echo -e "\e[41mScript has been aborted on user requiest. Please resolve the modified files are rerun\e[0m"
-		exit 1
-	else
-		echo -e "\e[0m"
-		echo -e "\e[32mUpdate the folder content with the latest from mainline branch\e[0m"
-		git fetch origin $kernel_branch --depth 1
-		printf "Resetting local changes in %s folder\n " ${kernel_name}
-		git reset --hard $kernel_branch
-	fi
-fi
 
 #Check if we need to apply patches or get reload stock drivers (Developers' option)
 [ "$#" -ne 0 -a "$1" == "reset" ] && reset_driver=1 || reset_driver=0
