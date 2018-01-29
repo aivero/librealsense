@@ -11,9 +11,9 @@ exec 2>&3
 
 if [ $con_dev -ne 0 ];
 then
-	echo -e "\e[32m"
-	read -p "Remove all RealSense cameras attached. Hit any key when ready"
-	echo -e "\e[0m"
+  echo -e "\e[32m"
+  read -p "Remove all RealSense cameras attached. Hit any key when ready"
+  echo -e "\e[0m"
 fi
 
 #Include usability functions
@@ -32,29 +32,31 @@ cd buildJetsonTX2Kernel && \
 sudo ./scripts/getKernelSources_noGUI.sh && \
 sudo ./scripts/fixMakeFiles.sh && \
 cd .. && sudo cp -R /usr/src/kernel/${kernel_name} ./${kernel_name}
-kernel_branch=$(choose_kernel_branch $LINUX_BRANCH)
-kernel_name="ubuntu-xenial-$kernel_branch"
-
+echo -e "Starting to apply kernel patches and kernel building"
+cd ./${kernel_name}
+kernel_branch="master"
+LINUX_BRANCH=$(uname -r)
 
 #Check if we need to apply patches or get reload stock drivers (Developers' option)
 [ "$#" -ne 0 -a "$1" == "reset" ] && reset_driver=1 || reset_driver=0
 
 if [ $reset_driver -eq 1 ];
 then
-	echo -e "\e[43mUser requested to rebuild and reinstall ubuntu-xenial stock drivers\e[0m"
+  echo -e "\e[43mUser requested to rebuild and reinstall ubuntu-xenial stock drivers\e[0m"
 else
-	# Patching kernel for RealSense devices
-	echo -e "\e[32mApplying realsense-uvc patch\e[0m"
-	patch -p1 < ../scripts/realsense-camera-formats_ubuntu-xenial-${kernel_branch}.patch
-	echo -e "\e[32mApplying realsense-metadata patch\e[0m"
-	patch -p1 < ../scripts/realsense-metadata-ubuntu-xenial-${kernel_branch}.patch
-	echo -e "\e[32mApplying realsense-hid patch\e[0m"
-	patch -p1 < ../scripts/realsense-hid-ubuntu-xenial-${kernel_branch}.patch
-	echo -e "\e[32mApplying realsense-powerlinefrequency-fix patch\e[0m"
-	patch -p1 < ../scripts/realsense-powerlinefrequency-control-fix.patch
+  # Patching kernel for RealSense devices
+  echo -e "\e[32mApplying realsense-uvc patch\e[0m"
+  sudo patch -p1 < ../scripts/realsense-camera-formats_ubuntu-xenial-master.patch
+  echo -e "\e[32mApplying realsense-metadata patch\e[0m"
+  sudo patch -p1 < ../scripts/realsense-metadata-ubuntu-xenial.patch
+  echo -e "\e[32mApplying realsense-hid patch\e[0m"
+  sudo patch -p1 < ../scripts/realsense-hid-ubuntu-xenial-master.patch
+  echo -e "\e[32mApplying realsense-powerlinefrequency-fix patch\e[0m"
+  sudo patch -p1 < ../scripts/realsense-powerlinefrequency-control-fix.patch
 fi
 
 # Copy configuration
+echo -e "Copying kernel config"
 sudo cp /usr/src/linux-headers-$(uname -r)/.config .
 sudo cp /usr/src/linux-headers-$(uname -r)/Module.symvers .
 
@@ -63,12 +65,12 @@ sudo cp /usr/src/linux-headers-$(uname -r)/Module.symvers .
 echo -e "\e[32mPrepare kernel modules configuration\e[0m"
 sudo make silentoldconfig modules_prepare
 
-#Vermagic identity is required since kernel 4.10
+#Vermagic identity is required since kernel 4.3 ... 4.10
 IFS='.' read -a kernel_version <<< "$LINUX_BRANCH"
-if [ ${kernel_version[1]} > 9 ];
+if [ ${kernel_version[1]} > 3 ];
 then
-	sudo sed -i "s/\".*\"/\"$LINUX_BRANCH\"/g" ./include/generated/utsrelease.h
-	sudo sed -i "s/.*/$LINUX_BRANCH/g" ./include/config/kernel.release
+  sudo sed -i "s/\".*\"/\"$LINUX_BRANCH\"/g" ./include/generated/utsrelease.h
+  sudo sed -i "s/.*/$LINUX_BRANCH/g" ./include/config/kernel.release
 fi
 
 # Build the uvc, accel and gyro modules
@@ -88,7 +90,8 @@ sudo make -j -C $KBASE M=$KBASE/drivers/media/v4l2-core modules
 sudo cp $KBASE/drivers/media/usb/uvc/uvcvideo.ko ~/$LINUX_BRANCH-uvcvideo.ko
 sudo cp $KBASE/drivers/iio/accel/hid-sensor-accel-3d.ko ~/$LINUX_BRANCH-hid-sensor-accel-3d.ko
 sudo cp $KBASE/drivers/iio/gyro/hid-sensor-gyro-3d.ko ~/$LINUX_BRANCH-hid-sensor-gyro-3d.ko
-sudo cp $KBASE/drivers/media/v4l2-core/videodev.ko ~/$LINUX_BRANCH-videodev.ko
+mkdir ~/$LINUX_BRANCH
+sudo cp $KBASE/drivers/media/v4l2-core/*.ko ~/$LINUX_BRANCH/
 
 echo -e "\e[32mPatched kernels modules were created successfully\n\e[0m"
 
