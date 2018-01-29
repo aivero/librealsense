@@ -27,11 +27,11 @@ kernel_name="kernel-4.4"
 require_package libssl-dev
 
 [ ! -d ${kernel_name} ] && \
-git clone https://github.com/jetsonhacks/buildJetsonTX2Kernel.git && \
+git submodule update --init --recursive
 cd buildJetsonTX2Kernel && \
-./getKernelSources.sh && \
-./scripts/fixMakeFiles.sh && \
-cd .. && cp /usr/src/kernel/${kernel_name} ./${kernel_name}
+sudo ./scripts/getKernelSources_noGUI.sh && \
+sudo ./scripts/fixMakeFiles.sh && \
+cd .. && sudo cp -R /usr/src/kernel/${kernel_name} ./${kernel_name}
 kernel_branch=$(choose_kernel_branch $LINUX_BRANCH)
 kernel_name="ubuntu-xenial-$kernel_branch"
 
@@ -40,7 +40,7 @@ kernel_name="ubuntu-xenial-$kernel_branch"
 [ "$#" -ne 0 -a "$1" == "reset" ] && reset_driver=1 || reset_driver=0
 
 if [ $reset_driver -eq 1 ];
-then 
+then
 	echo -e "\e[43mUser requested to rebuild and reinstall ubuntu-xenial stock drivers\e[0m"
 else
 	# Patching kernel for RealSense devices
