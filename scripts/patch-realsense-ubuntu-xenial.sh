@@ -88,8 +88,8 @@ sudo make -j -C $KBASE M=$KBASE/drivers/media/v4l2-core modules
 
 # Copy the patched modules to a sane location
 sudo cp $KBASE/drivers/media/usb/uvc/uvcvideo.ko ~/$LINUX_BRANCH-uvcvideo.ko
-sudo cp $KBASE/drivers/iio/accel/hid-sensor-accel-3d.ko ~/$LINUX_BRANCH-hid-sensor-accel-3d.ko
-sudo cp $KBASE/drivers/iio/gyro/hid-sensor-gyro-3d.ko ~/$LINUX_BRANCH-hid-sensor-gyro-3d.ko
+#sudo cp $KBASE/drivers/iio/accel/hid-sensor-accel-3d.ko ~/$LINUX_BRANCH-hid-sensor-accel-3d.ko
+#sudo cp $KBASE/drivers/iio/gyro/hid-sensor-gyro-3d.ko ~/$LINUX_BRANCH-hid-sensor-gyro-3d.ko
 mkdir ~/$LINUX_BRANCH
 sudo cp $KBASE/drivers/media/v4l2-core/*.ko ~/$LINUX_BRANCH/
 
