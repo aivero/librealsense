@@ -88,8 +88,8 @@ sudo make -j -C $KBASE M=$KBASE/drivers/media/v4l2-core modules
 
 # Copy the patched modules to a sane location
 sudo cp $KBASE/drivers/media/usb/uvc/uvcvideo.ko ~/$LINUX_BRANCH-uvcvideo.ko
-sudo cp $KBASE/drivers/iio/accel/hid-sensor-accel-3d.ko ~/$LINUX_BRANCH-hid-sensor-accel-3d.ko
-sudo cp $KBASE/drivers/iio/gyro/hid-sensor-gyro-3d.ko ~/$LINUX_BRANCH-hid-sensor-gyro-3d.ko
+#sudo cp $KBASE/drivers/iio/accel/hid-sensor-accel-3d.ko ~/$LINUX_BRANCH-hid-sensor-accel-3d.ko
+#sudo cp $KBASE/drivers/iio/gyro/hid-sensor-gyro-3d.ko ~/$LINUX_BRANCH-hid-sensor-gyro-3d.ko
 mkdir ~/$LINUX_BRANCH
 sudo cp $KBASE/drivers/media/v4l2-core/*.ko ~/$LINUX_BRANCH/
 
@@ -102,7 +102,7 @@ try_module_insert videobuf2-vmalloc     ~/$LINUX_BRANCH/videobuf2-vmalloc.ko    
 try_module_insert videobuf2-memops      ~/$LINUX_BRANCH/videobuf2-memops.ko     /lib/modules/`uname -r`/kernel/drivers/media/v4l2-core/videobuf2-memops.ko
 
 try_module_insert uvcvideo              ~/$LINUX_BRANCH-uvcvideo.ko             /lib/modules/`uname -r`/kernel/drivers/media/usb/uvc/uvcvideo.ko
-try_module_insert hid-sensor-accel-3d   ~/$LINUX_BRANCH-hid-sensor-accel-3d.ko   /lib/modules/`uname -r`/kernel/drivers/iio/accel/hid-sensor-accel-3d.ko
-try_module_insert hid-sensor-gyro-3d    ~/$LINUX_BRANCH-hid-sensor-gyro-3d.ko   /lib/modules/`uname -r`/kernel/drivers/iio/gyro/hid-sensor-gyro-3d.ko
+#try_module_insert hid-sensor-accel-3d   ~/$LINUX_BRANCH-hid-sensor-accel-3d.ko   /lib/modules/`uname -r`/kernel/drivers/iio/accel/hid-sensor-accel-3d.ko
+#try_module_insert hid-sensor-gyro-3d    ~/$LINUX_BRANCH-hid-sensor-gyro-3d.ko   /lib/modules/`uname -r`/kernel/drivers/iio/gyro/hid-sensor-gyro-3d.ko
 
 echo -e "\e[92m\n\e[1mScript has completed. Please consult the installation guide for further instruction.\n\e[0m"
