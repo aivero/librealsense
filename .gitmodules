@@ -1,0 +1,3 @@
+[submodule "buildJetsonTX2Kernel"]
+	path = buildJetsonTX2Kernel
+	url = git@github.com:aivero/buildJetsonTX2Kernel.git
