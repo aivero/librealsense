@@ -57,8 +57,8 @@ fi
 
 # Copy configuration
 echo -e "Copying kernel config"
-sudo cp /usr/src/linux-headers-$(uname -r)/.config .
-sudo cp /usr/src/linux-headers-$(uname -r)/Module.symvers .
+sudo cp /usr/src/linux-headers-$(uname -r)-tegra/.config .
+sudo cp /usr/src/linux-headers-$(uname -r)-tegra/Module.symvers .
 
 # Basic build for kernel modules
 #yes "" | make silentoldconfig modules_prepare
@@ -86,11 +86,11 @@ sudo make -j -C $KBASE M=$KBASE/drivers/iio/gyro modules
 echo -e "\e[32mCompiling v4l2-core modules\e[0m"
 sudo make -j -C $KBASE M=$KBASE/drivers/media/v4l2-core modules
 
-# Copy the patched modules to a sane location
+echo -e "Copy the patched modules to a sane location"
 sudo cp $KBASE/drivers/media/usb/uvc/uvcvideo.ko ~/$LINUX_BRANCH-uvcvideo.ko
 #sudo cp $KBASE/drivers/iio/accel/hid-sensor-accel-3d.ko ~/$LINUX_BRANCH-hid-sensor-accel-3d.ko
 #sudo cp $KBASE/drivers/iio/gyro/hid-sensor-gyro-3d.ko ~/$LINUX_BRANCH-hid-sensor-gyro-3d.ko
-mkdir ~/$LINUX_BRANCH
+mkdir -p ~/$LINUX_BRANCH
 sudo cp $KBASE/drivers/media/v4l2-core/*.ko ~/$LINUX_BRANCH/
 
 echo -e "\e[32mPatched kernels modules were created successfully\n\e[0m"
